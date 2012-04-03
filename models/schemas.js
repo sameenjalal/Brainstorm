@@ -39,7 +39,7 @@ var featureSchema = new Schema({
 	'creator': userSchema,
 	'choices': [{
 		'creator': userSchema,
-		'desc': String',
+		'desc': String,
 		'timestamp': Date
 	}],
 	'decided_choice': {
