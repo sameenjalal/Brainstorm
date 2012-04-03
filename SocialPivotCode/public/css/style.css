@@ -1,0 +1,45 @@
+.landing-img {
+	margin-bottom: 10px;
+	height: 150px;
+	width: 150px;
+}
+
+#register input {
+	display: block;
+}
+
+#register textarea {
+	height: 180px;
+	width: 458px;
+}
+
+#createIdea input {
+	display: block;
+}
+
+#createIdea textarea {
+	height: 180px;
+	width: 458px;
+}
+
+#pivot-button {
+	margin-bottom: 15px;
+}
+
+#pivot-button a {
+	color: #FFF;
+}
+
+#comment-submit textarea {
+	height: 180px;
+	width: 458px;
+}
+
+#tags ul {
+	list-style-type: none;
+}
+
+#tags li {
+	margin-left: 10px;
+	display: inline;
+}
