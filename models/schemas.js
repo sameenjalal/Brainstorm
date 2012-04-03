@@ -27,6 +27,8 @@ var ideaSchema = new Schema({
 	'desc': String,
 	'tags': []
 	'creator': userSchema,
+	'prev': ideaSchema,
+	'version': Number,
 	'owner': [userSchema],
 	'features': [featureSchema],
 	'comments': [commentSchema],
