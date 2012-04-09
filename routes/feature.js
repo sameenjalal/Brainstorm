@@ -55,16 +55,103 @@ module.exports = {
 	
 	
 	read 
-		function(req, cb){
+		function(query, type, fields, options, cb){
+			var response;
+			if(type=="one") {
+				Feature.findOne(query, fields, options, function(err, doc) {
+					if(err) {
+						response = {
+							status: "Error",
+							data: err
+						};
+					} else {
+						response = {
+							status: "Success",
+							data: doc
+						};
+					}
+				});
+			} else if(type=="id") {
+				Feature.findById(query._id, function(err, doc) {
+					if(err) {
+						response = {
+							status: "Error",
+							data: err
+						};
+					} else {
+						response = {
+							status: "Success",
+							data: doc
+						};
+					}
+				});
+			} else {
+				Feature.find(query, fields, options, function(err, docs) {
+					if(err) {
+						response = {
+							status: "Error",
+							data: err
+						};
+					} else {
+						response = {
+							status: "Success",
+							data: docs
+						};
+					}
+				});
+			}
+			cb(response);
 		},
 	
 	
 	update :
-		function(req, cb){
+		function(conditions, update, cb, options){
+			var response;
+			// TODO: How does updating the version of the idea this blongs to work?
+			Feature.update(conditions, update, options, function(err, numAffected) {
+				if(err) {
+					response = {
+						status: "Error",
+						data: err
+					};
+				} else {
+					response = {
+						status: "Success",
+						data: numAffected
+					};
+				}
+			});
+			cb(response);
 		},
 
 
+	/* creates and stores Idea thru post
+	* post params:
+	* feature_id
+	*/
 	destroy :
-		function(req, cb){
+		function(del_feat, cb){
+			var response;
+			Feature.findOne({_id: del_feat.feature_id}, function(err, doc) {
+				if(err) {
+					response = {
+						status: "Error",
+						data: err
+					};
+				} else if(doc === null) {
+					response = {
+						status: "Failure",
+						data: "No feature with that id could be found: " + del_feat.feature_id
+					};
+				} else {
+					doc.remove();
+					// TODO: Does this delete all references of choices it has?
+					response = {
+						status: "Success",
+						data: "Feature successfully removed"
+					};
+				}
+			});
+			cb(response);
 		}
 };
