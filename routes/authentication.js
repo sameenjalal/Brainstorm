@@ -1,4 +1,5 @@
 var User = require('../models/userModel.js'),
+	user_crud = require('./user.js'),
 	mongoose = require('mongoose'),
 	http = require('http'),
 	bcrypt = require('bcrypt');
@@ -33,52 +34,23 @@ module.exports = {
 	logout:
 		function(req, res) {
 			if(req.session) {
-				req.session.destroy(function() {}); 
+				req.session.destroy(function() {});
 			}
 			res.redirect('/');
 		},
 
 	register:
 		function(req, res) {
-			var post_data = "";
-			for( var key in req.body ) {
-				if(req.body.hasOwnProperty(key)) {
-					post_data += key + "=" + req.body[key] + "&";
+			user_crud.create(req.body, function(response) {
+				if(response.status === "Success") {
+					req.session.user = {
+						id: response.data._id,
+						name: response.data.name
+					};
+					res.redirect('/feed');
+				} else {
+					res.redirect('/');
 				}
-			}
-			post_data = post_data.slice(0, post_data.length-1);
-			var post_options = {
-				host: 'socialpivot.nodejitsu.com',
-				port: '80',
-				path: '/create_user',
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded',
-					'Content-Length': post_data.length
-				}
-			};
-
-			var post_request = http.request(post_options, function(userRes) {
-				userRes.setEncoding('utf8');
-				var respData = "";
-				userRes.on('data', function(chunk) {
-					respData += chunk;
-				});
-				userRes.on('end', function() {
-					var userData = JSON.parse(respData);
-					if(userData.status === "Success") {
-						req.session.user = {
-							id: userData.data._id,
-							name: userData.data.name
-						};
-						res.redirect("/feed");
-					} else if(userData.status === "Failure" || userData.status === "Error") {
-						res.redirect("/signup");
-					}
-				});
 			});
-
-			post_request.write(post_data);
-			post_request.end();
 		}
 };

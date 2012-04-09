@@ -25,9 +25,9 @@ var commentSchema = new Schema({
 var ideaSchema = new Schema({
 	'name': String,
 	'desc': String,
-	'tags': []
-	'creator': userSchema,
-	'prev': ideaSchema,
+	'tags': [],
+	'creator': {type: ObjectId, ref: 'User'},
+	'prev': {type: ObjectId, ref: 'Idea'},
 	'version': Number,
 	'owner': [userSchema],
 	'features': [featureSchema],
@@ -38,14 +38,14 @@ var ideaSchema = new Schema({
 var featureSchema = new Schema({
 	'name': String,
 	'desc': String,
-	'creator': userSchema,
+	'creator': {type: ObjectId, ref: 'User'},
 	'choices': [{
-		'creator': userSchema,
+		'creator': {type: ObjectId, ref: 'User'},
 		'desc': String,
 		'timestamp': Date
 	}],
 	'decided_choice': {
-		'creator': userSchema,
+		'creator': {type: ObjectId, ref: 'User'},
 		'desc': String,
 		'timestamp': Date
 	}

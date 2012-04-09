@@ -8,21 +8,21 @@ module.exports = {
 	* post params:
 	*/
 	create :
-		function(req, res) {
+		function(req, cb) {
 		},
 	
 	
 	read :
-		function(req, res){
+		function(req, cb){
 		},
 	
 	
 	update :
-		function(req, res){
+		function(req, cb){
 		},
 
 
 	destroy :
-		function(req, res){
+		function(req, cb){
 		}
 };

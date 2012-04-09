@@ -49,6 +49,9 @@ module.exports = {
 	/* render landing view */
 	landingView :
 		function(req, res){
+			res.render('landing.ejs', {
+				session: loginStatus(req)
+			})
 		},
 
 	signup:
@@ -65,12 +68,16 @@ module.exports = {
 
 	createIdea:
 		function(req, res) {
+			res.render('createIdea.ejs', {
+				session:loginStatus(req)
+			});
 		},
 
 	saveIdea:
-		function(req, res) {
+		function(req, res, sio) {
+			console.log(req.body);
+			sio.sockets.emit('updatefeed');
 		},
-
 
 	/* renders the idea view for a :ideaID that corrosponds to db ID */
 	ideaView :
@@ -89,6 +96,24 @@ module.exports = {
 	/* TODO this is bad, currently pullng everything and then sorting */
 	feedView :
 		function(req, res){
+			var session = loginStatus(req);
+			if(!session.logged_in) {
+				res.redirect("/");
+			} else {
+				Idea.find({}, function(err, ideas){
+					if(err){
+						internalServerError(res, err);
+					} else{
+						var activity = ideas;
+						activity.slice(0, 20);
+						var session = loginStatus(req);
+						res.render('feed.ejs', {
+							activity: activity,
+							session: session
+						});
+					}
+				});
+			}
 		},
 
 

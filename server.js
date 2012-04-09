@@ -1,26 +1,35 @@
 /* enviroment */
 var port = process.env.PORT || 4242;
-var secret = require('./secret.js');
-var db_path = "mongodb://batman:"+secret.password+"@staff.mongohq.com:10005/socialpivot";
+var db_path;
 
 /* requires */
-var express = require("express");
-var mongoose = require('mongoose');
-var routes = {
-	user : require('./routes/user.js'),
-	idea : require('./routes/idea.js'),
-	comment : require('./routes/comment.js'),
-	views : require('./routes/views.js'),
-	authentication: require('./routes/authentication.js')
-};
-
+var express = require('express'),
+	mongoose = require('mongoose'),
+	secret = require('./secret.js'),
+	io = require('socket.io'),
+	routes = {
+		user : require('./routes/user.js'),
+		idea : require('./routes/idea.js'),
+		feature: require('./routes/feature.js'),
+		comment : require('./routes/comment.js'),
+		views : require('./routes/views.js'),
+		authentication: require('./routes/authentication.js')
+	};
 
 /* create server */
 var app = express.createServer();
+var sio = io.listen(app);
+
+app.configure('development', function() {
+	db_path = "mongodb://localhost/socialpivot";
+});
+
+app.configure('production', function() {
+	db_path = "mongodb://batman:"+secret.password+"@staff.mongohq.com:10005/socialpivot";
+});
 
 /* init database */
 db = mongoose.connect(db_path);
-
 
 /* configs */
 app.configure(function(){
@@ -35,38 +44,15 @@ app.configure(function(){
 	});
 });
 
-
 /* routes */
+/*
+app.prototype.getWithSoc = function(route, cb){
+	app.get(route, function(req, res){
+		cb(req, res, sio);
+	});
+};*/
 
-/* CRUD operations on models */
-app.post("/create_:model?", function(req, res) {
-	if(!req.params.mode){
-		routes[req.params.model].create(req, res);
-	}else{
-		routes.views.notfound(req, res);
-	}
-});
-app.get("/read_:model?", function(req, res) {
-	if(!req.params.mode){
-		routes[req.params.model].read(req, res);
-	}else{
-		routes.views.notfound(req, res);
-	}
-});
-app.post("/update_:model?", function(req, res) {
-	if(!req.params.mode){
-		routes[req.params.model].update(req, res);
-	}else{
-		routes.views.notfound(req, res);
-	}	
-});
-app.get("/destroy_:model?", function(req, res) {
-	if(!req.params.mode){
-		routes[req.params.model].destroy(req, res);
-	}else{
-		routes.views.notfound(req, res);
-	}	
-});
+
 
 /* Login/Logout/Register */
 app.post("/login", routes.authentication.login);
@@ -80,12 +66,17 @@ app.get("/search", routes.views.searchView);
 app.get("/feed", routes.views.feedView);
 app.get("/signup", routes.views.signup);
 app.get("/createIdea", routes.views.createIdea);
-app.post("/saveIdea", routes.views.saveIdea);
+app.post("/saveIdea", function(req, res) {
+	routes.views.saveIdea(req, res, sio)
+});
 app.post("/submitComment", routes.views.submitComment);
 
-/* Laning page */
+/* Landing page */
 app.get('/', routes.views.landingView);
 
+sio.sockets.on('connection', function(socket) {
+	console.log("A socket has connected!");
+});
 
 /* start 'er up */
 mongoose.connection.on('open', function(){
