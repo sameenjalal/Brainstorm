@@ -57,9 +57,9 @@ module.exports = {
 	read 
 		function(query, type, fields, options, cb){
 			var response;
-			if(type=="one") {
+			if( type == "one" ) {
 				Feature.findOne(query, fields, options, function(err, doc) {
-					if(err) {
+					if( err ) {
 						response = {
 							status: "Error",
 							data: err
@@ -71,9 +71,9 @@ module.exports = {
 						};
 					}
 				});
-			} else if(type=="id") {
+			} else if( type == "id" ) {
 				Feature.findById(query._id, function(err, doc) {
-					if(err) {
+					if( err ) {
 						response = {
 							status: "Error",
 							data: err
@@ -87,7 +87,7 @@ module.exports = {
 				});
 			} else {
 				Feature.find(query, fields, options, function(err, docs) {
-					if(err) {
+					if( err ) {
 						response = {
 							status: "Error",
 							data: err
@@ -109,7 +109,7 @@ module.exports = {
 			var response;
 			// TODO: How does updating the version of the idea this blongs to work?
 			Feature.update(conditions, update, options, function(err, numAffected) {
-				if(err) {
+				if( err ) {
 					response = {
 						status: "Error",
 						data: err
@@ -125,23 +125,19 @@ module.exports = {
 		},
 
 
-	/* creates and stores Idea thru post
-	* post params:
-	* feature_id
-	*/
 	destroy :
 		function(del_feat, cb){
 			var response;
-			Feature.findOne({_id: del_feat.feature_id}, function(err, doc) {
-				if(err) {
+			Feature.findOne({_id: del_feat._id}, function(err, doc) {
+				if( err ) {
 					response = {
 						status: "Error",
 						data: err
 					};
-				} else if(doc === null) {
+				} else if( doc === null ) {
 					response = {
 						status: "Failure",
-						data: "No feature with that id could be found: " + del_feat.feature_id
+						data: "No feature with that id could be found: " + del_feat._id
 					};
 				} else {
 					doc.remove();
