@@ -48,7 +48,8 @@ var featureSchema = new Schema({
 		'creator': {type: ObjectId, ref: 'User'},
 		'desc': String,
 		'timestamp': Date
-	}
+	},
+	'timestamp': Date,
 });
 
 module.exports = {
