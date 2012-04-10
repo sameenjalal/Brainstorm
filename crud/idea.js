@@ -8,12 +8,12 @@ module.exports = {
 	* post params:
 	*/
 	create :
-		function(req, cb) {
+		function(idea, cb) {
 		},
 	
 	
 	read :
-		function(req, cb){
+		function(cb){
 		},
 	
 	
