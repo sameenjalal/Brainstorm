@@ -107,7 +107,7 @@ module.exports = {
 	update :
 		function(conditions, update, cb, options){
 			var response;
-			// TODO: How does updating the version of the idea this blongs to work?
+			// TODO: How does updating the version of the idea this belongs to work?
 			Feature.update(conditions, update, options, function(err, numAffected) {
 				if( err ) {
 					response = {
