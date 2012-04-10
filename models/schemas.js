@@ -41,16 +41,8 @@ var featureSchema = new Schema({
 	'name': String,
 	'desc': String,
 	'creator': {type: ObjectId, ref: 'User'},
-	'choices': [{
-		'creator': {type: ObjectId, ref: 'User'},
-		'desc': String,
-		'timestamp': Date
-	}],
-	'decided_choice': {
-		'creator': {type: ObjectId, ref: 'User'},
-		'desc': String,
-		'timestamp': Date
-	},
+	'choices': [ideaSchema],
+	'decided_choice': {type: ObjectId, ref: 'Idea'},
 	'parent': {type: ObjectId, ref: 'Idea'},
 	'choices': [ideaSchema],
 	'decided_choice': [ideaSchema],
