@@ -1,24 +1,28 @@
 var Idea = require("../models/ideaModel.js"),
 	User = require("../models/userModel.js"),
 	mongoose = require('mongoose'),
-	ObjectId = mongoose.Types.ObjectId;
+	ObjectId = mongoose.Types.ObjectId,
+	user_crud = mongoose.require('./user.js');
+
 
 module.exports = {
 	/* <- new_idea = {
 	 *      name : STRING, name of idea
 	 *      desc : STRING, description of idea
 	 *      tags : [STRING], tags of idea
-	 *      parent : ID, the id of the feature this idea comes from
-	 *      creator : NUMBER, user id of in session creator
+	 *      parent_id : NUMBER, the id of the feature this idea comes from
+	 *      creator_id : NUMBER, user id of in session creator
 	 *      owners : [STRING]/[NUMBER], names or user IDs of users who will be owners
 	 *    }
 	 * -> cb(
 	 *      e : ERROR, error from mongo
-	 *      data : IDEA, the created idea
+	 *      doc : IDEA, the created idea
 	 *    )
 	 */
 	create :
 		function(new_idea, cb){
+			user_crud.read(new_idea.creator_id, function(err, doc){
+				
 		},
 
 
@@ -31,7 +35,7 @@ module.exports = {
 	 * <- uid = NUMBER, the user id of the privilaged user
 	 * -> cb(
 	 *      e : ERROR, error from mongo
-	 *      data : IDEA, the read idea (sometimes in array form for multi)
+	 *      doc : IDEA, the read idea (sometimes in array form for multi)
 	 *    )
 	 */
 	read :
@@ -49,7 +53,7 @@ module.exports = {
 	 * <- uid = NUMBER, the user id of the privilaged user
 	 * -> cb(
 	 *      e : ERROR, error from mongo
-	 *      data : IDEA, the updated idea
+	 *      doc : IDEA, the updated idea
 	 *    )
 	 */
 	update :

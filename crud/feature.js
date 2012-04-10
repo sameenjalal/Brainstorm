@@ -1,7 +1,7 @@
 var Feature = require("../models/featureModel.js"),
 	mongoose = require('mongoose'),
 	ObjectId = mongoose.Types.ObjectId,
-	usercrud = require('./user.js');
+	usercrud = require('./user.js'),
 	ideacrud = require('./user.js');
 
 module.exports = {
