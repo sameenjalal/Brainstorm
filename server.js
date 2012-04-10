@@ -20,13 +20,17 @@ var express = require('express'),
 var app = express.createServer();
 var sio = io.listen(app);
 
-app.configure('development', function() {
-	db_path = "mongodb://localhost/socialpivot";
-});
-
-app.configure('production', function() {
-	db_path = "mongodb://batman:"+secret.password+"@staff.mongohq.com:10005/socialpivot";
-});
+/* socket functions, probably wont need these */
+var getWithSoc = function(route, cb){
+	app.get(route, function(req, res){
+		cb(req, res, sio);
+	});
+};
+var postWithSoc = function(route, cb){
+	app.post(route, function(req, res){
+		cb(req, res, sio);
+	});
+};
 
 /* init database */
 db = mongoose.connect(db_path);
@@ -43,16 +47,15 @@ app.configure(function(){
 		layout : false
 	});
 });
-
-/* routes */
-/*
-app.prototype.getWithSoc = function(route, cb){
-	app.get(route, function(req, res){
-		cb(req, res, sio);
-	});
-};*/
+app.configure('development', function() {
+	db_path = "mongodb://localhost/socialpivot";
+});
+app.configure('production', function() {
+	db_path = "mongodb://batman:"+secret.password+"@staff.mongohq.com:10005/socialpivot";
+});
 
 
+/* ROUTES */
 
 /* Login/Logout/Register */
 app.post("/login", routes.authentication.login);
@@ -77,6 +80,9 @@ app.get('/', routes.views.landingView);
 sio.sockets.on('connection', function(socket) {
 	console.log("A socket has connected!");
 });
+
+
+/* START UP */
 
 /* start 'er up */
 mongoose.connection.on('open', function(){
