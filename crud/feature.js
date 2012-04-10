@@ -1,56 +1,78 @@
 var Feature = require("../models/featureModel.js"),
 	mongoose = require('mongoose'),
-	ObjectId = mongoose.Types.ObjectId;
+	ObjectId = mongoose.Types.ObjectId,
+	usercrud = require('./user.js');
+	ideacrud = require('./user.js');
 
 module.exports = {
 
 	/* creates and stores Idea thru post
-	* post params:
-	* name
-	* desc
-	* creator_id
+	* post params, new_feat:
+	** name
+	** desc
+	** creator_id
+	** idea_id
+	** choices
 	*/
 	create :
 		function(new_feat, cb) {
-			var response;
-			User.findOne({_id: new_feat.creator_id}, function(err, doc) {
-				if( err ) {
-					response = {
-						status: 'Error',
-						data: err
-					};
-				} else if( doc === null ) {
-					response = {
-						status: 'Failure',
-						data: err
-					};
+			usercrud.read(new_feat.creator_id, function(err, doc) {
+				if( err || doc === null ) {
+					var data = "This user cannot be found";
+					cb(err, data);
 				} else {
-					var newFeature = new Feature({
-						name: new_feat.name,
-						desc: new_feat.desc,
-						creator: {
-							type: new ObjectId(new_feat.creator_id),
-							ref: doc
-						},
-						choices: [],
-						decided_choice: null,
-						timestamp: Date.now()
-					});
-					response = {
-						status: 'Success',
-						data: "Successfully added feature: " + new_feat.name
-					};
-					newFeature.save(function(err) {
-						if( err ) {
-							response = {
-								status: 'Error',
-								data: err
+					ideacrud.read(new_feat.idea_id, new_feat.creator_id, function(idea_err, idea_doc) {
+						if( idea_err || idea_doc === null ) {
+							var data = "This user cannot be found";
+							cb(idea_err, data);
+						} else {
+							var counter = 0;
+							var new_choices_array = [];
+							var new_feature = new Feature({
+								name: new_feat.name,
+								desc: new_feat.desc,
+								creator: doc._id,
+								parent: idea_doc._id,
+								timestamp: Date.now()
+							});
+
+							var on_created_idea = function(err, data) {
+								if( err ) {
+									var data = "Something fucked up";
+									cb(err, data);
+								} else {
+									counter++;
+									new_choices_array.push(data);
+
+									if( counter === new_feat.choices.length ) {
+										new_feature.choices = new_choices_array;
+										new_feature.save(function(err) {
+											if( err ) {
+												var d = "Fucked up";
+												cb(err, d);
+											} else {
+												cb(err, new_feature);
+											}
+										});
+									}
+								}
 							};
+
+							for( var i = 0 ; i < new_feat.choices.length ; i++ ) {
+								var choice = new_feat.choices[i];
+								var opts = {
+									name: choice.name,
+									desc: choice.desc,
+									creator: doc._id,
+									owners: idea_doc.owners,
+									parent: new_feature._id
+								};
+								ideacrud.create(opts, on_created_idea);
+							}
 						}
 					});
 				}
 			});
-			cb(response)
 		},
 	
 	
