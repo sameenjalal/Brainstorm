@@ -76,100 +76,97 @@ module.exports = {
 		},
 	
 	
-	read 
-		function(query, type, fields, options, cb){
-			var response;
-			if( type == "one" ) {
-				Feature.findOne(query, fields, options, function(err, doc) {
-					if( err ) {
-						response = {
-							status: "Error",
-							data: err
-						};
-					} else {
-						response = {
-							status: "Success",
-							data: doc
-						};
-					}
-				});
-			} else if( type == "id" ) {
-				Feature.findById(query._id, function(err, doc) {
-					if( err ) {
-						response = {
-							status: "Error",
-							data: err
-						};
-					} else {
-						response = {
-							status: "Success",
-							data: doc
-						};
-					}
-				});
+	read :
+		function(opts, uid, cb){
+			if( typeof(opts) === 'object' ) {
+				cb(null, "Fuck you");
 			} else {
-				Feature.find(query, fields, options, function(err, docs) {
-					if( err ) {
-						response = {
-							status: "Error",
-							data: err
-						};
+				Feature.findById(opts).populate('parent').run(function(err, idea) {
+					if( err || idea === null ) {
+						var d = "Something fucked up in read in feature.js";
+						cb(err, d);
 					} else {
-						response = {
-							status: "Success",
-							data: docs
-						};
+						var owners = idea.owners;
+						for( var i = 0 ; i < owners.length ; i++ ) {
+							if( uid === owners[i]._id ) {
+								Feature.findById(opts, function(err, feature) {
+									if( err || feature === null ) {
+										var d = "Something fucked up in getting feature in read in feature.js";
+										cb(err, d);
+									} else {
+										cb(err, feature);
+									}
+								}
+							}
+						}
+						cb(null, "Permission Denied!");
 					}
 				});
 			}
-			cb(response);
 		},
 	
 	
 	update :
-		function(conditions, update, cb, options){
-			var response;
-			// TODO: How does updating the version of the idea this belongs to work?
-			Feature.update(conditions, update, options, function(err, numAffected) {
-				if( err ) {
-					response = {
-						status: "Error",
-						data: err
-					};
-				} else {
-					response = {
-						status: "Success",
-						data: numAffected
-					};
-				}
-			});
-			cb(response);
+		function(opts, update_opts, uid, cb){
+			if( typeof(opts) === 'object' ) {
+				cb(null, "Fuck you");
+			} else {
+				Feature.findById(opts).populate('parent').run(function(err, idea) {
+					if( err || idea === null ) {
+						var d = "Something fucked up in update in feature.js";
+						cb(err, d);
+					} else {
+						var owners = idea.owners;
+						for( var i = 0 ; i < owners.length ; i++ ) {
+							if( uid === owners[i]._id ) {
+								Feature.findById(opts, function(err, feature) {
+									if( err || feature === null ) {
+										var d = "Something fucked up in getting feature in update in feature.js";
+										cb(err, d);
+									} else {
+										// TODO: Finish this stupid part
+										feature.remove();
+										var d = "Successfully update feature";
+										cb(err, d);
+									}
+								}
+							}
+						}
+						cb(null, "Permission Denied!");
+					}
+				});
+			}
 		},
 
 
 	destroy :
-		function(del_feat, cb){
-			var response;
-			Feature.findOne({_id: del_feat._id}, function(err, doc) {
-				if( err ) {
-					response = {
-						status: "Error",
-						data: err
-					};
-				} else if( doc === null ) {
-					response = {
-						status: "Failure",
-						data: "No feature with that id could be found: " + del_feat._id
-					};
-				} else {
-					doc.remove();
-					// TODO: Does this delete all references of choices it has?
-					response = {
-						status: "Success",
-						data: "Feature successfully removed"
-					};
-				}
-			});
-			cb(response);
+		function(opts, uid, cb){
+			if( typeof(opts) === 'object' ) {
+				cb(null, "Fuck you");
+			} else {
+				Feature.findById(opts).populate('parent').run(function(err, idea) {
+					if( err || idea === null ) {
+						var d = "Something fucked up in delete in feature.js";
+						cb(err, d);
+					} else {
+						var owners = idea.owners;
+						for( var i = 0 ; i < owners.length ; i++ ) {
+							if( uid === owners[i]._id ) {
+								Feature.findById(opts, function(err, feature) {
+									if( err || feature === null ) {
+										var d = "Something fucked up in getting feature in delete in feature.js";
+										cb(err, d);
+									} else {
+										feature.remove();
+										var d = "Successfully deleted feature";
+										cb(err, d);
+									}
+								}
+							}
+						}
+						cb(null, "Permission Denied!");
+					}
+				});
+			}
 		}
 };
