@@ -29,9 +29,10 @@ var ideaSchema = new Schema({
 	'creator': {type: ObjectId, ref: 'User'},
 	'prev': {type: ObjectId, ref: 'Idea'},
 	'version': Number,
-	'owner': [userSchema],
+	'owners': [userSchema],
 	'features': [featureSchema],
 	'comments': [commentSchema],
+	'public': Boolean,
 	'timestamp': Date,
 });
 
@@ -39,16 +40,9 @@ var featureSchema = new Schema({
 	'name': String,
 	'desc': String,
 	'creator': {type: ObjectId, ref: 'User'},
-	'choices': [{
-		'creator': {type: ObjectId, ref: 'User'},
-		'desc': String,
-		'timestamp': Date
-	}],
-	'decided_choice': {
-		'creator': {type: ObjectId, ref: 'User'},
-		'desc': String,
-		'timestamp': Date
-	},
+	'belongs_to': {type: ObjectId. ref: 'Idea'},
+	'choices': [ideaSchema],
+	'decided_choice': [ideaSchema],
 	'timestamp': Date,
 });
 
