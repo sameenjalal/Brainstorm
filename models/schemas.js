@@ -33,6 +33,7 @@ var ideaSchema = new Schema({
 	'owners': [userSchema],
 	'features': [featureSchema],
 	'comments': [commentSchema],
+	'public': Boolean,
 	'timestamp': Date,
 });
 
@@ -51,6 +52,8 @@ var featureSchema = new Schema({
 		'timestamp': Date
 	},
 	'parent': {type: ObjectId, ref: 'Idea'},
+	'choices': [ideaSchema],
+	'decided_choice': [ideaSchema],
 	'timestamp': Date,
 });
 
