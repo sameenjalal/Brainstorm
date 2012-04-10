@@ -28,8 +28,9 @@ var ideaSchema = new Schema({
 	'tags': [],
 	'creator': {type: ObjectId, ref: 'User'},
 	'prev': {type: ObjectId, ref: 'Idea'},
+	'parent': {type: ObjectId, ref: 'Feature'},
 	'version': Number,
-	'owner': [userSchema],
+	'owners': [userSchema],
 	'features': [featureSchema],
 	'comments': [commentSchema],
 	'timestamp': Date,
@@ -49,6 +50,7 @@ var featureSchema = new Schema({
 		'desc': String,
 		'timestamp': Date
 	},
+	'parent': {type: ObjectId, ref: 'Idea'},
 	'timestamp': Date,
 });
 
