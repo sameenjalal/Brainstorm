@@ -31,8 +31,8 @@ var ideaSchema = new Schema({
 	'parent': {type: ObjectId, ref: 'Feature'},
 	'version': Number,
 	'owners': [userSchema],
-	'features': [featureSchema],
-	'comments': [commentSchema],
+	'features': [{type: ObjectId, ref: 'Feature'}],
+	'comments': [{type: ObjectId, ref: 'Comment'}],
 	'public': Boolean,
 	'timestamp': Date,
 });
@@ -41,11 +41,9 @@ var featureSchema = new Schema({
 	'name': String,
 	'desc': String,
 	'creator': {type: ObjectId, ref: 'User'},
-	'choices': [ideaSchema],
-	'decided_choice': {type: ObjectId, ref: 'Idea'},
 	'parent': {type: ObjectId, ref: 'Idea'},
-	'choices': [ideaSchema],
-	'decided_choice': [ideaSchema],
+	'choices': [{type: ObjectId, ref: 'Idea'}],
+	'decided_choice': [{type: ObjectId, ref: 'Idea'}],
 	'timestamp': Date,
 });
 

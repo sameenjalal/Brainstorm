@@ -26,8 +26,6 @@ module.exports = {
 							var data = "This user cannot be found";
 							cb(idea_err, data);
 						} else {
-							var counter = 0;
-							var new_choices_array = [];
 							var new_feature = new Feature({
 								name: new_feat.name,
 								desc: new_feat.desc,
@@ -35,40 +33,14 @@ module.exports = {
 								parent: idea_doc._id,
 								timestamp: Date.now()
 							});
-
-							var on_created_idea = function(err, data) {
+							new_feature.save(function(err) {
 								if( err ) {
-									var data = "Something fucked up";
-									cb(err, data);
+									var d = "Fucked up";
+									cb(err, d);
 								} else {
-									counter++;
-									new_choices_array.push(data);
-
-									if( counter === new_feat.choices.length ) {
-										new_feature.choices = new_choices_array;
-										new_feature.save(function(err) {
-											if( err ) {
-												var d = "Fucked up";
-												cb(err, d);
-											} else {
-												cb(err, new_feature);
-											}
-										});
-									}
+									cb(err, new_feature);
 								}
-							};
-
-							for( var i = 0 ; i < new_feat.choices.length ; i++ ) {
-								var choice = new_feat.choices[i];
-								var opts = {
-									name: choice.name,
-									desc: choice.desc,
-									creator: doc._id,
-									owners: idea_doc.owners,
-									parent: new_feature._id
-								};
-								ideacrud.create(opts, on_created_idea);
-							}
+							});
 						}
 					});
 				}
@@ -82,6 +54,7 @@ module.exports = {
 				cb(null, "Fuck you");
 			} else {
 				Feature.findById(opts).populate('parent').run(function(err, idea) {
+					var flag = 0;
 					if( err || idea === null ) {
 						var d = "Something fucked up in read in feature.js";
 						cb(err, d);
@@ -89,6 +62,7 @@ module.exports = {
 						var owners = idea.owners;
 						for( var i = 0 ; i < owners.length ; i++ ) {
 							if( uid === owners[i]._id ) {
+								flag = 1;
 								Feature.findById(opts, function(err, feature) {
 									if( err || feature === null ) {
 										var d = "Something fucked up in getting feature in read in feature.js";
@@ -99,7 +73,9 @@ module.exports = {
 								}
 							}
 						}
-						cb(null, "Permission Denied!");
+						if(flag === 0) {
+							cb(null, "Permission Denied!");
+						}
 					}
 				});
 			}
@@ -145,6 +121,7 @@ module.exports = {
 				cb(null, "Fuck you");
 			} else {
 				Feature.findById(opts).populate('parent').run(function(err, idea) {
+					var flag = 0;
 					if( err || idea === null ) {
 						var d = "Something fucked up in delete in feature.js";
 						cb(err, d);
@@ -152,6 +129,7 @@ module.exports = {
 						var owners = idea.owners;
 						for( var i = 0 ; i < owners.length ; i++ ) {
 							if( uid === owners[i]._id ) {
+								flag = 1;
 								Feature.findById(opts, function(err, feature) {
 									if( err || feature === null ) {
 										var d = "Something fucked up in getting feature in delete in feature.js";
@@ -164,7 +142,9 @@ module.exports = {
 								}
 							}
 						}
-						cb(null, "Permission Denied!");
+						if(flag === 0) {
+							cb(null, "Permission Denied!");
+						}
 					}
 				});
 			}
