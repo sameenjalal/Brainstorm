@@ -88,6 +88,7 @@ module.exports = {
 				cb(null, "Fuck you");
 			} else {
 				Feature.findById(opts).populate('parent').run(function(err, idea) {
+					var flag = 0;
 					if( err || idea === null ) {
 						var d = "Something fucked up in update in feature.js";
 						cb(err, d);
@@ -95,20 +96,48 @@ module.exports = {
 						var owners = idea.owners;
 						for( var i = 0 ; i < owners.length ; i++ ) {
 							if( uid === owners[i]._id ) {
-								Feature.findById(opts, function(err, feature) {
-									if( err || feature === null ) {
-										var d = "Something fucked up in getting feature in update in feature.js";
-										cb(err, d);
-									} else {
-										// TODO: Finish this stupid part
-										feature.remove();
-										var d = "Successfully update feature";
-										cb(err, d);
-									}
+								flag = 1;
+								if(update_opts.idea !== undefined) {
+									var new_idea = update_opts.idea;
+									delete update_opts.idea;
 								}
+								Feature.update(opts, update_opts, function(update_err, numAffected){
+									if(update_err) {
+										var d = "Something went wrong when updating feature";
+										cb(update_err, d);
+									} else if(new_idea) {
+										ideacrud.create(new_idea, function(idea_err, created_idea) {
+											if(idea_err) {
+												var d = "Something went wrong when trying to create the idea";
+												cb(idea_err, d);
+											} else {
+												Feature.findById(opts, function(feature_err, feature) {
+													if(feature_err) {
+														var d = "Something went wrong when trying to find the feature";
+														cb(feature_err, feature);
+													} else {
+														feature.choices.push(created_idea._id);
+														feature.save(function(save_err) {
+															if(save_err) {
+																var d = "Something went wrong when trying to save the feature";
+																cb(save_err, d);
+															} else {
+																cb(save_err, feature);
+															}
+														});
+													}
+												});
+											}
+										});
+									} else {
+										cb(update_err, numAffected);
+									}
+								});
 							}
 						}
-						cb(null, "Permission Denied!");
+						if(flag === 0) {
+							cb(null, "Permission Denied!");
+						}
 					}
 				});
 			}
@@ -134,9 +163,28 @@ module.exports = {
 									if( err || feature === null ) {
 										var d = "Something fucked up in getting feature in delete in feature.js";
 										cb(err, d);
+									} else if(feature.choices.length > 0) {
+										var counter = 0;
+										var on_created_idea = function(err, data) {
+											if( err ) {
+												var data = "Deleting an idea messed up";
+												cb(err, data);
+											} else {
+												counter++;
+												if( counter === feature.choices.length ) {
+													feature.remove();
+													var d = "Successfully deleted feature and all associated ideas";
+													cb(err, d);
+												}
+											}
+										};
+										for( var i = 0 ; i < feature.choices.length ; i++ ) {
+											var choice_id = feature.choices[i];
+											ideacrud.destroy(choice_id, on_deleted_idea);
+										}
 									} else {
 										feature.remove();
-										var d = "Successfully deleted feature";
+										var d = "Successfully deleted feature and all associated ideas";
 										cb(err, d);
 									}
 								}
