@@ -14,7 +14,7 @@ var userSchema = new Schema({
 });
 
 var commentSchema = new Schema({
-	'user' : [userSchema],
+	'user' : [{type: ObjectId, ref 'User'}],
 	'idea_id' : ObjectId,
 	'feature_id' : ObjectId,
 	'rating' : Number,

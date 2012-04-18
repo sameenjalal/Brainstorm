@@ -51,7 +51,7 @@ module.exports = {
 	read :
 		function(opts, uid, cb){
 			if( typeof(opts) === 'object' ) {
-				cb(null, "Fuck you");
+				cb(null, "Fuck you"); //Seriously?
 			} else {
 				Feature.findById(opts).populate('parent').run(function(err, idea) {
 					var flag = 0;

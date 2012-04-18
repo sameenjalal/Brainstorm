@@ -5,6 +5,7 @@ var Idea = require("../models/ideaModel.js"),
 	user_crud = require('./user.js'),
 	feature_crud = require('./feature.js');
 
+
 /* black demon magic below */
 function wrapErrors(){
 	var err = new Error('One or more errors thrown by '+throwErrors.caller+": ");
@@ -17,6 +18,37 @@ function wrapErrors(){
 	}
 	return err;
 }
+
+/* wrapper for multiple mongo calls run together with the same callback */
+function DelayCb() {
+	this.doc = {};
+	this.err = {};
+	this.counter = 0;
+	this.limit = 1;
+}
+DelayCb.prototype = {
+	check :
+		function(){
+			this.counter++;
+			if(this.counter === this.limit){
+				this.cb(this.err, this.doc);
+			}
+		},
+	wait : function(name) {
+			   this.limit++;
+			   var that = this;
+			   return (function(err, doc){
+				   that.err.name = err;
+				   that.doc.name = doc;
+				   that.check();
+			   });
+		   },
+	ready :
+		function(cb){
+			this.cb = cb;
+			this.check();
+		}
+};
 
 
 module.exports = {
@@ -47,7 +79,8 @@ module.exports = {
 					feature_crud.read(parent_id, parent_find_cb);
 				}
 				function parent_find_cb(parent_err, found_parent){
-					cb(wrapErrors(owners_err, parent_err), {
+					var errors = wrapErrors(owners_err, parent_err);
+					var created_idea = {
 						name : new_idea.name,
 						desc : new_idea.desc,
 						tags : (new_idea.tags ? new_idea.tags : []),
@@ -60,7 +93,8 @@ module.exports = {
 						comments : [],
 						public : ((found_parent ? found_parent.parent.public : new_idea.public) ? (found_parent ? found_parent.parent.public : new_idea.public) : null),
 						timestamp : new Date()
-					});
+					};
+					var Idea.save
 				}
 			});
 		},
@@ -80,7 +114,13 @@ module.exports = {
 	 */
 	read :
 		function(who, uid, cb){
+			waiter = new DelayCb();
+			user_crud.read(uid, waiter.wait('owner'));
+			(typeof who === 'number' ? Idea.findByID : Idea.findOne)(who).populate('
+
 			
+
+				
 
 		},
 	
