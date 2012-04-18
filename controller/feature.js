@@ -2,7 +2,8 @@ var Feature = require("../models/featureModel.js"),
 	mongoose = require('mongoose'),
 	ObjectId = mongoose.Types.ObjectId,
 	usercrud = require('./user.js'),
-	ideacrud = require('./user.js');
+	ideacrud = require('./idea.js'),
+	commentcurd = require('./comment.js');
 
 module.exports = {
 
@@ -70,6 +71,7 @@ module.exports = {
 									} else {
 										cb(err, feature);
 									}
+									break;
 								}
 							}
 						}
@@ -165,13 +167,14 @@ module.exports = {
 										cb(err, d);
 									} else if(feature.choices.length > 0) {
 										var counter = 0;
-										var on_created_idea = function(err, data) {
+										var total = feature.choices.length + feature.comments.length;
+										var on_deleted = function(err, data) {
 											if( err ) {
 												var data = "Deleting an idea messed up";
 												cb(err, data);
 											} else {
 												counter++;
-												if( counter === feature.choices.length ) {
+												if( counter === total ) {
 													feature.remove();
 													var d = "Successfully deleted feature and all associated ideas";
 													cb(err, d);
@@ -180,7 +183,11 @@ module.exports = {
 										};
 										for( var i = 0 ; i < feature.choices.length ; i++ ) {
 											var choice_id = feature.choices[i];
-											ideacrud.destroy(choice_id, on_deleted_idea);
+											ideacrud.destroy(choice_id, on_deleted);
+										}
+										for(var j=0; j<feature.comments.length; j++) {
+											var comment_id = feature.comments[i];
+											commentcrud.destroy(comment_id, on_deleted);
 										}
 									} else {
 										feature.remove();
